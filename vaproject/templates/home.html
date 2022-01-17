@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Batch Details</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
+</head>
+
+<body>
+    <table class="table table-striped table-bordered table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th>Batch ID</th>
+                <th>Start Date Time</th>
+                <th>End Date Time</th>
+                <th>Duration in Second</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for batch in batches %}
+            <tr>
+                <td>{{ batch.batch_id }}</td>
+                <td>{{ batch.start_date }}</td>
+                <td>{{ batch.end_date }}</td>
+                <td>
+                    {% for item in time_diff %}
+                    {% if forloop.counter == forloop.parentloop.counter %}
+                    {{ item }}
+                    {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% if batch.batch_id|length == 10  %}
+                    <a href="/display/{{ batch.id }}"><span class="glyphicon glyphicon-pencil">View</span></a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <br>
+</body>
+
+</html>

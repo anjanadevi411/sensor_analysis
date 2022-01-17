@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Batch View</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
+</head>
+
+<body>
+    <h1>Batch ID: {{ batch }}</h1>
+    <table class="table table-striped table-bordered table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th>Time</th>
+                <th>Temperature Difference</th>
+                <th>pH Difference</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in value_tbl %}
+            <tr>
+                <td>{{ item.time }}</td>
+                <td>{{ item.temp_diff }}</td>
+                <td>{{ item.ph_diff }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <br>
+</body>
+
+</html>
