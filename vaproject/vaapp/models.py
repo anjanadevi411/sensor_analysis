@@ -1,8 +1,4 @@
-from pyexpat import model
-from typing import Tuple
 from django.db import models
-
-# Create your models here.
 
 class Phsensor(models.Model):
     sensorName = models.CharField(max_length=8, blank=True)

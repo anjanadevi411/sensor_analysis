@@ -1,23 +1,20 @@
-import csv, io
-from tempfile import template
-from datetime import date, datetime as dt
+import csv
+from io import StringIO
+from datetime import datetime as dt
 from django.shortcuts import render
 from django.contrib import messages
 
-from vaapp.models import Batch, Phsensor, Temp
+from .models import Batch, Phsensor, Temp
 
-# Create your views here.
 def home(request):
-    # declaring template
     template = 'home.html'
     batches = Batch.objects.all()
-    time_deff = []
+    time_diff = []
     for item in batches:
-        time_deff.append((item.end_date - item.start_date).total_seconds())
-    return render(request,template, {'batches': batches, 'time_diff' : time_deff})
+        time_diff.append((item.end_date - item.start_date).total_seconds())
+    return render(request,template, {'batches': batches, 'time_diff' : time_diff})
 
 def display(request, id):
-    # declaring template
     template = 'display.html'
     batch = Batch.objects.get(pk = id)
 
@@ -36,14 +33,14 @@ def display(request, id):
     ph_sensor1 = convertKeyValue(list(phs.filter(sensorName = '400E_PH1').values('time', 'value')))
     ph_sensor2 = convertKeyValue(list(phs.filter(sensorName = '400E_PH2').values('time', 'value')))
 
-    # print(temp_sensor1)
-    # print(len(temp_sensor2))
+    #print('temp_sensor1',temp_sensor1)
+    #print('length of next temp sensor',len(temp_sensor1))
     # print(len(ph_sensor1))
     # print(len(ph_sensor2))
     ret_tbl = []    
 
     # print(ph_sensor1)
-    time_list = []
+    #time_list = []
     for key in temp_sensor1.keys():
         # key = dt.strftime(temp_sensor1[index]['time'], '%Y-%m-%d %H:%M:%S')
         # print(key)
@@ -60,39 +57,40 @@ def display(request, id):
     # print(ret_tbl)
     # print(len(ret_tbl))
 
-    ret_data = {
+    context = {
         'batch' : batch.batch_id,
         'value_tbl' : ret_tbl,
     }
     # print(ret_data)
-    return render(request, template, ret_data)
+    return render(request, template, context)
 
-# one parameter named request
 def upload_csv(request):
     # declaring template
     template = "upload_csv.html"
     # data = Phsensor.objects.all()
     
-    # prompt is a context variable that can have different values      depending on their context
+    # prompt is a context variable that can have different values depending on their context
     prompt = {
         'order': 'Order of the CSV should be Date Time, data',
-        # 'PH': data    
               }
     
     # GET request returns the value of the data with the specified key.
     if request.method == "GET":
         return render(request, template, prompt)
     
-    csv_file = request.FILES['file']
+    if request.method == "POST":
+        csv_file = request.FILES['file']
     
     # let's check if it is a csv file
     if not csv_file.name.endswith('.csv'):
         messages.error(request, 'THIS IS NOT A CSV FILE')
+        return render(request, template)
+        
     data_set = csv_file.read().decode('UTF-8')
     
     if("PH" in csv_file.name):
         # setup a stream which is when we loop through each line we are able to handle a data in a stream
-        io_string = io.StringIO(data_set)
+        io_string = StringIO(data_set)
         
         # delete all exsiting records
         # Phsensor.objects.all().delete()
@@ -105,13 +103,11 @@ def upload_csv(request):
                 value=column[1],
                 sensorName=csv_file.name.split(".")[0],
             )
-        context = {
-            'message' : 'File has been uploaded'
-        }
+        messages.info(request, 'File has been uploaded')
     
     if("Temp" in csv_file.name):
         # setup a stream which is when we loop through each line we are able to handle a data in a stream
-        io_string = io.StringIO(data_set)
+        io_string = StringIO(data_set)
         
         # delete all exsiting records
         # Temp.objects.all().delete()
@@ -124,11 +120,11 @@ def upload_csv(request):
                 value=column[1],
                 sensorName=csv_file.name.split(".")[0],
             )
-        context = {}
+        messages.info(request, 'File has been uploaded')
 
     if("batch" in csv_file.name):
         # setup a stream which is when we loop through each line we are able to handle a data in a stream
-        io_string = io.StringIO(data_set)
+        io_string = StringIO(data_set)
         
         # delete all exsiting records
         # Batch.objects.all().delete()
@@ -141,9 +137,9 @@ def upload_csv(request):
                 end_date=column[1],
                 batch_id=column[2],
             )
-        context = {}
+        messages.info(request, 'File has been uploaded')
 
-    return render(request, template, context)
+    return render(request, template)
     
 
 
