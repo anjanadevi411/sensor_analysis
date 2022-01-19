@@ -90,17 +90,16 @@ def display(request, id):
 def upload_csv(request):
     # declaring template
     template = "upload_csv.html"
-    # data = Phsensor.objects.all()
     
-    # prompt is a context variable that can have different values depending on their context
     prompt = {
         'order': 'Order of the CSV should be Date Time, data',
               }
     
-    # GET request returns the value of the data with the specified key.
+    # GET request
     if request.method == "GET":
         return render(request, template, prompt)
     
+    #POST
     if request.method == "POST":
         csv_file = request.FILES['file']
     
