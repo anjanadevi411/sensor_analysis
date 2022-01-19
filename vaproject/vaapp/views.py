@@ -1,8 +1,13 @@
 import csv
 from io import StringIO
+from django.http import HttpResponse
 from datetime import datetime as dt
 from django.shortcuts import render
 from django.contrib import messages
+from matplotlib import pyplot as plt
+# from matplotlib import style
+# style.use("fivethirtyeight")
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from .models import Batch, Phsensor, Temp
 
@@ -41,6 +46,9 @@ def display(request, id):
 
     # print(ph_sensor1)
     #time_list = []
+    time_plot = []
+    temp_plot = []
+    ph_plot = []
     for key in temp_sensor1.keys():
         # key = dt.strftime(temp_sensor1[index]['time'], '%Y-%m-%d %H:%M:%S')
         # print(key)
@@ -54,6 +62,9 @@ def display(request, id):
             # print(disc)
             # time_list.append(key)
             ret_tbl.append(disc)
+            time_plot.append(disc['time'])
+            temp_plot.append(disc['temp_diff'])
+            ph_plot.append(disc['ph_diff'])
     # print(ret_tbl)
     # print(len(ret_tbl))
 
@@ -61,6 +72,18 @@ def display(request, id):
         'batch' : batch.batch_id,
         'value_tbl' : ret_tbl,
     }
+
+    #####
+    # fig, ax = plt.subplots()
+    # ax.plot(time_plot,ph_plot)
+    # ax.set(xlabel='time_plot (s)', ylabel='temp_plot', title='Analysis of temperature and PH sensor with batch ID')
+    # ax.grid()
+
+    # response = HttpResponse(content_type = 'image/png')
+    # canvas = FigureCanvasAgg(fig)
+    # canvas.print_png(response)
+    # return response
+   
     # print(ret_data)
     return render(request, template, context)
 
@@ -85,7 +108,7 @@ def upload_csv(request):
     if not csv_file.name.endswith('.csv'):
         messages.error(request, 'THIS IS NOT A CSV FILE')
         return render(request, template)
-        
+
     data_set = csv_file.read().decode('UTF-8')
     
     if("PH" in csv_file.name):
