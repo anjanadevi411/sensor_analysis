@@ -46,12 +46,10 @@ def display(request, id):
 
     # print(ph_sensor1)
     #time_list = []
-    time_plot = []
-    temp_plot = []
-    ph_plot = []
+    # time_plot = []
+    # temp_plot = []
+    # ph_plot = []
     for key in temp_sensor1.keys():
-        # key = dt.strftime(temp_sensor1[index]['time'], '%Y-%m-%d %H:%M:%S')
-        # print(key)
         # print(ph_sensor1[key])
         if key in temp_sensor1 and key in temp_sensor2 and key in ph_sensor1 and key in ph_sensor2:
             disc = {
@@ -62,9 +60,9 @@ def display(request, id):
             # print(disc)
             # time_list.append(key)
             ret_tbl.append(disc)
-            time_plot.append(disc['time'])
-            temp_plot.append(disc['temp_diff'])
-            ph_plot.append(disc['ph_diff'])
+            # time_plot.append(disc['time'])
+            # temp_plot.append(disc['temp_diff'])
+            # ph_plot.append(disc['ph_diff'])
     # print(ret_tbl)
     # print(len(ret_tbl))
 
@@ -76,7 +74,7 @@ def display(request, id):
     #####
     # fig, ax = plt.subplots()
     # ax.plot(time_plot,ph_plot)
-    # ax.set(xlabel='time_plot (s)', ylabel='temp_plot', title='Analysis of temperature and PH sensor with batch ID')
+    # ax.set(xlabel='time_plot (s)', ylabel='temp_plot', title='Analysis of temperature with batch ID')
     # ax.grid()
 
     # response = HttpResponse(content_type = 'image/png')
@@ -91,13 +89,10 @@ def upload_csv(request):
     # declaring template
     template = "upload_csv.html"
     
-    prompt = {
-        'order': 'Order of the CSV should be Date Time, data',
-              }
     
     # GET request
     if request.method == "GET":
-        return render(request, template, prompt)
+        return render(request, template)
     
     #POST
     if request.method == "POST":
@@ -120,7 +115,7 @@ def upload_csv(request):
         next(io_string)
         for column in csv.reader(io_string, delimiter='\t', quotechar="|"):
             print(column[0], ":", column[1])
-            _, created = Phsensor.objects.update_or_create(
+            created = Phsensor.objects.update_or_create(
                 time=column[0],
                 value=column[1],
                 sensorName=csv_file.name.split(".")[0],
@@ -128,12 +123,8 @@ def upload_csv(request):
         messages.info(request, 'File has been uploaded')
     
     if("Temp" in csv_file.name):
-        # setup a stream which is when we loop through each line we are able to handle a data in a stream
         io_string = StringIO(data_set)
         
-        # delete all exsiting records
-        # Temp.objects.all().delete()
-
         next(io_string)
         for column in csv.reader(io_string, delimiter='\t', quotechar="|"):
             print(column[0], ":", column[1])
@@ -147,9 +138,6 @@ def upload_csv(request):
     if("batch" in csv_file.name):
         # setup a stream which is when we loop through each line we are able to handle a data in a stream
         io_string = StringIO(data_set)
-        
-        # delete all exsiting records
-        # Batch.objects.all().delete()
 
         next(io_string)
         for column in csv.reader(io_string, delimiter='\t', quotechar="|"):
